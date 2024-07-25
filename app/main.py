@@ -13,16 +13,18 @@ def create_response(string): #create a response body
 
 def handle_request(request):
 	requestArray = request.split("\r\n") # split request into array
-	requestArray = requestArray[0].split(" ") #take the first line with http method and split into array by space
-	print(requestArray)
-	requestMessage = requestArray[1].split("/") #take the line with the endpoint and split into array
-	print(requestMessage)
-	if(requestMessage[1] == ""):
+	firstLine = requestArray[0].split(" ") #take the first line with http method and split into array by space
+	methodItems = firstLine[1].split("/") #take the line with the endpoint and split into array - get the route
+	route = methodItems[1] #get the route
+	if(route == ""):
 		return("")
-	if(requestMessage[1] == "echo" and len(requestMessage) > 2):
-		return(requestMessage[2]) #return the endpoint if echo
-	else:
-		return("404")
+	if(route == "echo" and len(methodItems) > 2):
+		return(methodItems[2]) #return the endpoint if echo
+	if(route == "user-agent"):
+		for line in requestArray:
+			if("User-Agent" in line):
+				return(line.split(": ")[1])
+	return("404")
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
