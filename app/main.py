@@ -5,10 +5,10 @@ def handle_request(request):
 
 	requestArray = request.split("\r\n")
 	requestArray = requestArray[0].split(" ")
-	if(requestArray[1] == "/abcdefg"):
-		return 404
-	elif(requestArray[1] == "/"):
+	if(requestArray[1] == "/"):
 		return 200
+	else:
+		return 404
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
