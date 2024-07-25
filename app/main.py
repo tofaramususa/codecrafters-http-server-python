@@ -31,13 +31,13 @@ def createResponse(content="", content_type="text/plain", status=200, content_en
 	response = f"HTTP/1.1 {status} {statusMessage}\r\n"
 	response += f"Content-Type: {content_type}\r\n"
 	response += f"Content-Length: {len(content)}\r\n"
-	if(content_encoding == "gzip"):
+	if"gzip" in content_encoding:
 		response += f"Content-Encoding: {content_encoding}\r\n"
 	response += "\r\n"
 	response += content
 	return response.encode()
 
-def handle_request(request):
+def handleRequest(request):
 	requestArray = request.split("\r\n") # split request into array
 	firstLine = requestArray[0].split(" ") #take the first line with http method and split into array by space
 	methodItems = firstLine[1].split("/") #take the line with the endpoint and split into array - get the route
@@ -76,7 +76,7 @@ def main():
 					inputs.append(connection)
 				else:
 					request = s.recv(1024).decode()
-					response = handle_request(request)
+					response = handleRequest(request)
 					try:
 						s.sendall(response)
 					except Exception as e:
