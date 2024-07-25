@@ -14,9 +14,10 @@ def create_response(string): #create a response body
 def handle_request(request):
 	requestArray = request.split("\r\n") # split request into array
 	requestArray = requestArray[0].split(" ") #take the first line with http method and split into array by space
+	print(requestArray)
 	requestMessage = requestArray[1].split("/") #take the line with the endpoint and split into array
 	print(requestMessage)
-	if(len(requestMessage) == 1):
+	if(requestMessage[1] == ""):
 		return("")
 	if(requestMessage[1] == "echo" and len(requestMessage) > 2):
 		return(requestMessage[2]) #return the endpoint if echo
