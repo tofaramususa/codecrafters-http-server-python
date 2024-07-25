@@ -2,11 +2,21 @@
 import socket
 import select 
 
+def handleFileRoute(filename, request_type="GET", request_body=""): #handle the file route
+
+	if(request_type == "POST"):
+		return(createResponse(status=201)) #return 201 if post request
+	else:
+		try:
+			with open(f"/tmp/data/codecrafters.io/http-server-tester/{filename}", "r") as file:
+				content = file.read()
+				return(createResponse(content, content_type="application/octet-stream"))
+		except FileNotFoundError:
+			return(createResponse(status=404))
+
 def createResponse(content="", content_type="text/plain", status=200): #create a response body
-	statusMessage = {200: "OK", 404: "Not Found"}.get(status, "OK") # ok is the default is not found
+	statusMessage = {200: "OK", 404: "Not Found", 201: "Created"}.get(status, "OK") # ok is the default is not found
 	return f"HTTP/1.1 {status} {statusMessage}\r\nContent-Type: {content_type}\r\nContent-Length: {len(content)}\r\n\r\n{content}".encode()
-
-
 
 def handle_request(request):
 	requestArray = request.split("\r\n") # split request into array
@@ -24,12 +34,8 @@ def handle_request(request):
 				return(createResponse(line.split(": ")[1]))
 	if(route == "files"):
 		filename = methodItems[2] if len(methodItems) > 2 else "nonexistent"
-		try:
-			with open(f"/tmp/data/codecrafters.io/http-server-tester/{filename}", "r") as file:
-				content = file.read()
-				return(createResponse(content, content_type="application/octet-stream"))
-		except FileNotFoundError:
-			return(createResponse(status=404))
+		return(handleFileRoute(filename, firstLine[0], requestArray[-1]))
+
 	return(createResponse(status=404)) #return 404 if route not found
 
 def main():
