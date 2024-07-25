@@ -36,8 +36,8 @@ def createResponse(content="", content_type="text/plain", status=200, content_en
 	response += f"Content-Type: {content_type}\r\n"
 	response += f"Content-Length: {len(content)}\r\n"
 	response += "\r\n"
-	response += content
-	return response.encode()
+	response = response.encode() + content
+	return response
 
 def handleRequest(request):
 	requestArray = request.split("\r\n") # split request into array
