@@ -25,7 +25,7 @@ def handle_request(request):
 	if(route == "files"):
 		filename = methodItems[2] if len(methodItems) > 2 else "nonexistent"
 		try:
-			with open(f"/tmp/{filename}", "r") as file:
+			with open(f"/tmp/data/codecrafters.io/http-server-tester/{filename}", "r") as file:
 				content = file.read()
 				return(createResponse(content))
 		except FileNotFoundError:
