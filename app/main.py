@@ -27,10 +27,10 @@ def handle_request(request):
 		try:
 			with open(f"/tmp/data/codecrafters.io/http-server-tester/{filename}", "r") as file:
 				content = file.read()
-				return(createResponse(content))
+				return(createResponse(content, content_type="application/octet-stream"))
 		except FileNotFoundError:
 			return(createResponse(status=404))
-	return(createResponse(status=404, content_type="application/octet-stream")) #return 404 if route not found
+	return(createResponse(status=404)) #return 404 if route not found
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
