@@ -31,7 +31,7 @@ def createResponse(content="", content_type="text/plain", status=200, content_en
 	response = f"HTTP/1.1 {status} {statusMessage}\r\n"
 	response += f"Content-Type: {content_type}\r\n"
 	response += f"Content-Length: {len(content)}\r\n"
-	if(content_encoding != ""):
+	if(content_encoding != "gzip"):
 		response += f"Content-Encoding: {content_encoding}\r\n"
 	response += "\r\n"
 	response += content
