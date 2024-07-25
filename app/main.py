@@ -2,13 +2,9 @@
 import socket
 import select 
 
-def create_response(string): #create a response body
-	
-	if(string == "404"):
-		response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n".encode()
-		return (response)
-	response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(string)}\r\n\r\n{string}".encode()
-	return response
+def createResponse(content="", content_type="text/plain", status=200): #create a response body
+	statusMessage = {200: "OK", 404: "Not Found"}.get(status, "OK") # ok is the default is not found
+	return f"HTTP/1.1 {status} {statusMessage}\r\nContent-Type: {content_type}\r\nContent-Length: {len(content)}\r\n\r\n{content}".encode()
 
 
 
@@ -17,15 +13,24 @@ def handle_request(request):
 	firstLine = requestArray[0].split(" ") #take the first line with http method and split into array by space
 	methodItems = firstLine[1].split("/") #take the line with the endpoint and split into array - get the route
 	route = methodItems[1] #get the route
+
 	if(route == ""):
-		return("")
+		return(createResponse())
 	if(route == "echo" and len(methodItems) > 2):
-		return(methodItems[2]) #return the endpoint if echo
+		return(createResponse(methodItems[2])) #return the endpoint if echo
 	if(route == "user-agent"):
 		for line in requestArray:
 			if("User-Agent" in line):
-				return(line.split(": ")[1])
-	return("404")
+				return(createResponse(line.split(": ")[1]))
+	if(route == "files"):
+		filename = methodItems[2]
+		try:
+			with open(f"tmp/{filename}", "r") as file:
+				content = file.read()
+				return(createResponse(content))
+		except FileNotFoundError:
+			return(createResponse(status=404))
+	return(createResponse(status=404, content_type="application/octet-stream")) #return 404 if route not found
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -46,8 +51,7 @@ def main():
 					inputs.append(connection)
 				else:
 					request = s.recv(1024).decode()
-					endpointStr = handle_request(request)
-					response = create_response(endpointStr)
+					response = handle_request(request)
 					try:
 						s.sendall(response)
 					except Exception as e:
