@@ -5,6 +5,9 @@ import select
 def handleFileRoute(filename, request_type="GET", request_body=""): #handle the file route
 
 	if(request_type == "POST"):
+		newfile = open(f"/tmp/data/codecrafters.io/http-server-tester/{filename}", "a")
+		newfile.write(request_body)
+		newfile.close()
 		return(createResponse(status=201)) #return 201 if post request
 	else:
 		try:
