@@ -23,7 +23,7 @@ def handle_request(request):
 			if("User-Agent" in line):
 				return(createResponse(line.split(": ")[1]))
 	if(route == "files"):
-		filename = methodItems[2]
+		filename = methodItems[2] if len(methodItems) > 2 else "nonexistent"
 		try:
 			with open(f"/tmp/{filename}", "r") as file:
 				content = file.read()
@@ -36,7 +36,7 @@ def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
 	print("Logs from your program will appear here!")
 	with socket.create_server(("localhost", 4221), reuse_port=True) as server_socket:
-		print("Server started on localhost 4421")
+		print("Server started on localhost 4221")
 		server_socket.listen()
 		server_socket.setblocking(False)
 
