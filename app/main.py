@@ -36,7 +36,7 @@ def createResponse(content="", content_type="text/plain", status=200, content_en
 	response += f"Content-Type: {content_type}\r\n"
 	response += f"Content-Length: {len(content)}\r\n"
 	response += "\r\n"
-	response = response.encode() + content
+	response = response.encode() + content if type(content) == bytes else content.encode()
 	return response
 
 def handleRequest(request):
