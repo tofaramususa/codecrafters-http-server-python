@@ -1,5 +1,6 @@
 # Uncomment this to pass the first stage
 import socket
+import select 
 
 def create_response(string): #create a response body
 	
@@ -29,27 +30,31 @@ def handle_request(request):
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
 	print("Logs from your program will appear here!")
-
-    # Uncomment this to pass the first stage
-    #
-	# server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
-    # # server_socket.accept() # wait for client
-	# connection, address = server_socket.accept()
-
 	with socket.create_server(("localhost", 4221), reuse_port=True) as server_socket:
 		print("Server started on localhost 4421")
-		while True:
-			connection, address = server_socket.accept()
-			request = connection.recv(1024).decode()
-			endpointStr = handle_request(request)
-			response = create_response(endpointStr)
+		server_socket.listen()
+		server_socket.setblocking(False)
 
-			try:
-				connection.sendall(response)
-			except Exception as e:
-				print(f"Error: {e}")
-			finally:
-				connection.close()
+		inputs = [server_socket]
+
+		while True:
+			readable, _, _ = select.select(inputs, [], [])
+			for s in readable:
+				if s is server_socket:
+					connection, address = server_socket.accept()
+					connection.setblocking(False)
+					inputs.append(connection)
+				else:
+					request = s.recv(1024).decode()
+					endpointStr = handle_request(request)
+					response = create_response(endpointStr)
+					try:
+						s.sendall(response)
+					except Exception as e:
+						print(f"Error: {e}")
+					finally:
+						s.close()
+						inputs.remove(s)
 			
 
 if __name__ == "__main__":
