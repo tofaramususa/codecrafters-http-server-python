@@ -1,14 +1,21 @@
 # Uncomment this to pass the first stage
 import socket
 
-def handle_request(request):
+def create_response(string): #create a response body
+	
+	response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(string)}\r\n\r\n{string}".encode()
+	return response
 
-	requestArray = request.split("\r\n")
-	requestArray = requestArray[0].split(" ")
-	if(requestArray[1] == "/"):
-		return 200
+
+
+def handle_request(request):
+	requestArray = request.split("\r\n") # split request into array
+	requestArray = requestArray[0].split(" ") #take the first line with http method and split into array by space
+	requestMessage = requestArray[1].split("/") #take the line with the endpoint and split into array
+	if(requestMessage[1] == "echo" and len(requestMessage) > 2):
+		return(requestMessage[2]) #return the endpoint if echo
 	else:
-		return 404
+		return("404")
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -25,13 +32,11 @@ def main():
 		while True:
 			connection, address = server_socket.accept()
 			request = connection.recv(1024).decode()
-			status = handle_request(request)
+			endpointStr = handle_request(request)
+			response = create_response(endpointStr)
 
 			try:
-				if status == 200:
-					connection.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
-				elif status == 404:
-					connection.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n")
+				connection.sendall(response)
 			except Exception as e:
 				print(f"Error: {e}")
 			finally:
