@@ -2,6 +2,15 @@
 import socket
 import select 
 
+def handleEchoRoute(requestMessage): #handle the echo route
+	requestArray = requestMessage.split("\r\n") # split request into array
+	firstLine = requestArray[0].split(" ") #take the first line with http method and split into array by space
+	methodItems = firstLine[1].split("/") #take the line with the endpoint and split into array - get the route
+	for line in requestArray:
+		if("Accept-Encoding" in line):
+			return(createResponse(methodItems[2],content_encoding=line.split(": ")[1]))
+	return(createResponse(methodItems[2]))
+
 def handleFileRoute(filename, request_type="GET", request_body=""): #handle the file route
 
 	if(request_type == "POST"):
@@ -17,9 +26,16 @@ def handleFileRoute(filename, request_type="GET", request_body=""): #handle the 
 		except FileNotFoundError:
 			return(createResponse(status=404))
 
-def createResponse(content="", content_type="text/plain", status=200): #create a response body
+def createResponse(content="", content_type="text/plain", status=200, content_encoding=""): #create a response body
 	statusMessage = {200: "OK", 404: "Not Found", 201: "Created"}.get(status, "OK") # ok is the default is not found
-	return f"HTTP/1.1 {status} {statusMessage}\r\nContent-Type: {content_type}\r\nContent-Length: {len(content)}\r\n\r\n{content}".encode()
+	response = f"HTTP/1.1 {status} {statusMessage}\r\n"
+	response += f"Content-Type: {content_type}\r\n"
+	response += f"Content-Length: {len(content)}\r\n"
+	if(content_encoding != ""):
+		response += f"Content-Encoding: {content_encoding}\r\n"
+	response += "\r\n"
+	response += content
+	return response.encode()
 
 def handle_request(request):
 	requestArray = request.split("\r\n") # split request into array
@@ -30,7 +46,7 @@ def handle_request(request):
 	if(route == ""):
 		return(createResponse())
 	if(route == "echo" and len(methodItems) > 2):
-		return(createResponse(methodItems[2])) #return the endpoint if echo
+		return(handleEchoRoute(request)) #return the endpoint if echo
 	if(route == "user-agent"):
 		for line in requestArray:
 			if("User-Agent" in line):
