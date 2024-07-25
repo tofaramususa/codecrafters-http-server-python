@@ -25,7 +25,7 @@ def handle_request(request):
 	if(route == "files"):
 		filename = methodItems[2]
 		try:
-			with open(f"tmp/{filename}", "r") as file:
+			with open(f"/tmp/{filename}", "r") as file:
 				content = file.read()
 				return(createResponse(content))
 		except FileNotFoundError:
