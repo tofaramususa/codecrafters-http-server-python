@@ -3,6 +3,9 @@ import socket
 
 def create_response(string): #create a response body
 	
+	if(string == "404"):
+		response = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n".encode()
+		return (response)
 	response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(string)}\r\n\r\n{string}".encode()
 	return response
 
