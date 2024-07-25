@@ -1,6 +1,7 @@
 # Uncomment this to pass the first stage
 import socket
 import select 
+import gzip
 
 def handleEchoRoute(requestMessage): #handle the echo route
 	requestArray = requestMessage.split("\r\n") # split request into array
@@ -29,10 +30,11 @@ def handleFileRoute(filename, request_type="GET", request_body=""): #handle the 
 def createResponse(content="", content_type="text/plain", status=200, content_encoding=""): #create a response body
 	statusMessage = {200: "OK", 404: "Not Found", 201: "Created"}.get(status, "OK") # ok is the default is not found
 	response = f"HTTP/1.1 {status} {statusMessage}\r\n"
+	if"gzip" in content_encoding:
+		content = gzip.compress(content.encode())
+		response += f"Content-Encoding: gzip\r\n"
 	response += f"Content-Type: {content_type}\r\n"
 	response += f"Content-Length: {len(content)}\r\n"
-	if"gzip" in content_encoding:
-		response += f"Content-Encoding: gzip\r\n"
 	response += "\r\n"
 	response += content
 	return response.encode()
